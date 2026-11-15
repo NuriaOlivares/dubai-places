@@ -73,8 +73,8 @@ var SRC={maps:"Google Maps",tiktok:"TikTok",ig:"Instagram",other:"Other"};
 var SB_URL="https://gxbxqheodarzxbjcnvvi.supabase.co",SB_KEY="sb_publishable_75-gB_2Scsx7AL4lV1Q0GA__L3QhpCv";
 var SB=supabase.createClient(SB_URL,SB_KEY);
 var S={places:[],events:[],tab:"places",cat:"All",type:"All",q:"",area:"All",areas:[],near:null,nmsg:"",hideDone:false,showClosed:false,month:new Date(),sel:null,nid:-1,user:null,loading:false,err:"",em:"",snap:{places:{},events:{},areas:[]}};
-var PCOLS=["name","cat","type","area","price","note","src","maps","lat","lng","guest","done","tip","link","rating","draft","closed"];
-function rowOf(p){var r={};PCOLS.forEach(function(k){var v=p[k];if(k=="guest"||k=="done"||k=="draft"||k=="closed")v=!!v;else if(v===undefined||v==="")v=null;r[k]=v});return r}
+var PCOLS=["name","cat","type","locs","price","note","src","guest","done","tip","link","rating","draft","closed"];
+function rowOf(p){var r={};PCOLS.forEach(function(k){var v=p[k];if(k=="locs")v=locsOf(p);else if(k=="guest"||k=="done"||k=="draft"||k=="closed")v=!!v;else if(v===undefined||v==="")v=null;r[k]=v});return r}
 function eventRow(e){return{date:e.date,place_id:e.pid||null,title:e.title||null}}
 async function ok(q){var r=await q;if(r.error)throw r.error;return r}
 var Q=Promise.resolve();
@@ -103,7 +103,7 @@ async function loadAll(){
   var a=await ok(SB.from("places").select("*").order("created_at",{ascending:false}));
   var b=await ok(SB.from("events").select("*"));
   var c=await ok(SB.from("areas").select("name"));
-  S.places=a.data;
+  S.places=a.data;S.places.forEach(function(p){p.locs=normLocs(p)});
   S.events=b.data.map(function(r){return{id:r.id,date:r.date,pid:r.place_id,title:r.title||""}});
   S.areas=c.data.map(function(r){return r.name});
   S.snap={places:{},events:{},areas:S.areas.slice()};
@@ -139,16 +139,25 @@ function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"
 function pl(id){return S.places.filter(function(p){return p.id==id})[0]}
 
 function card(p){
- var h='<div class="card'+(p.done?' done':'')+'"><div class="row"><div><h3>'+esc(p.name)+'</h3><div class="meta">'+esc(p.area)+(p.type?' • '+esc(p.type):'')+'</div></div><div class="tag">'+esc(p.price||"")+'</div></div>';
+ var h='<div class="card'+(p.done?' done':'')+'"><div class="row"><div><h3>'+esc(p.name)+'</h3><div class="meta">'+esc(areasOf(p).join(' · '))+(p.type?' • '+esc(p.type):'')+'</div></div><div class="tag">'+esc(p.price||"")+'</div></div>';
  if(p.note)h+='<p class="note">'+esc(p.note)+'</p>';
  if(p.tip)h+='<p class="note" style="border-left:3px solid var(--sun);padding-left:10px">💡 '+esc(p.tip)+'</p>';
  if(p.link&&/^https?:/.test(p.link))h+='<div class="meta" style="margin-top:6px"><a href="'+esc(p.link)+'" target="_blank" rel="noopener" style="color:var(--acc)">Open original post</a></div>';
+ h+=locRows(p);
  h+='<div class="tags"><span class="tag">'+esc(p.cat)+'</span><span class="tag src">'+esc(SRC[p.src]||"Other")+'</span>'+distTag(p)+'</div>';
- if(p.closed){h+='<div class="acts"><button class="btn p" onclick="setClosed('+p.id+',false)">Restore</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><span class="end"><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';return h}
- if(p.draft){h+='<div class="acts"><button class="btn p" onclick="approve('+p.id+')">Add to list</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Discard</button></span></div></div>';return h}
- h+='<div class="acts"><button class="btn'+(p.guest?' on':'')+'" onclick="tg('+p.id+',\'guest\')">'+(p.guest?'★ For guests':'☆ Guests')+'</button><button class="btn'+(p.done?' on':'')+'" onclick="beenSheet('+p.id+')">'+(p.done?'Been '+(RATE[p.rating]?RATE[p.rating].e:'✓'):'Mark been')+'</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><button class="btn p" onclick="planSheet('+p.id+')">Plan</button><span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';
+ if(p.closed){h+='<div class="acts"><button class="btn p" onclick="setClosed('+p.id+',false)">Restore</button>'+mapsBtn(p)+'<span class="end"><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';return h}
+ if(p.draft){h+='<div class="acts"><button class="btn p" onclick="approve('+p.id+')">Add to list</button>'+mapsBtn(p)+'<span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Discard</button></span></div></div>';return h}
+ h+='<div class="acts"><button class="btn'+(p.guest?' on':'')+'" onclick="tg('+p.id+',\'guest\')">'+(p.guest?'★ For guests':'☆ Guests')+'</button><button class="btn'+(p.done?' on':'')+'" onclick="beenSheet('+p.id+')">'+(p.done?'Been '+(RATE[p.rating]?RATE[p.rating].e:'✓'):'Mark been')+'</button>'+mapsBtn(p)+'<button class="btn p" onclick="planSheet('+p.id+')">Plan</button><span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';
  return h}
-function mapsUrl(p){return p.maps||("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" UAE"))}
+function normLocs(p){if(Array.isArray(p.locs)&&p.locs.length)return p.locs;if(p.area||p.maps)return[{area:p.area||"",maps:p.maps||"",lat:p.lat==null?null:p.lat,lng:p.lng==null?null:p.lng,note:"",avoid:false}];return[]}
+function locsOf(p){if(!Array.isArray(p.locs))p.locs=normLocs(p);return p.locs}
+function areasOf(p){var a=[];locsOf(p).forEach(function(l){if(l.area&&a.indexOf(l.area)<0)a.push(l.area)});return a}
+function showRows(p){var L=locsOf(p);return L.length>1||(L.length==1&&(L[0].note||L[0].avoid))}
+function mapsUrl(p,l){return(l&&l.maps)||("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+((l&&l.area)||"")+" UAE"))}
+function mapsBtn(p){if(showRows(p))return"";return'<a class="btn" href="'+esc(mapsUrl(p,locsOf(p)[0]))+'" target="_blank" rel="noopener">Maps</a>'}
+function locRows(p){
+ if(!showRows(p))return"";
+ return'<div style="display:grid;gap:8px;margin-top:10px">'+locsOf(p).map(function(l){return'<div class="row" style="align-items:center;'+(l.avoid?'opacity:.55':'')+'"><div><b style="font-size:14px">'+esc(l.area||"Location")+'</b>'+(l.avoid?' <span class="tag">Not recommended</span>':'')+(l.note?'<div class="meta">'+esc(l.note)+'</div>':'')+'</div><a class="btn" href="'+esc(mapsUrl(p,l))+'" target="_blank" rel="noopener">Maps</a></div>'}).join("")+'</div>'}
 var RATE={up:{e:"👍",t:"Loved it"},mid:{e:"😐",t:"It was ok"},down:{e:"👎",t:"Not for me"}};
 function beenSheet(id){var p=pl(id);if(!p)return;sheet('<h2>How was it?</h2><div class="meta">'+esc(p.name)+'</div>'+['up','mid','down'].map(function(k){return'<button class="btn'+(p.rating==k?' on':'')+'" style="padding:12px;font-size:15px" onclick="rate('+id+',\''+k+'\')">'+RATE[k].e+' '+RATE[k].t+'</button>'}).join('')+(p.done?'<button class="btn d" onclick="unbeen('+id+')">Not been after all</button>':'')+'<button class="btn" onclick="closeSheet()">Cancel</button>')}
 function rate(id,k){var p=pl(id);p.done=true;p.rating=k;save();closeSheet();render()}
@@ -169,8 +178,10 @@ function viewPlaces(){
  h+='<div class="bar" style="padding-top:0"><button class="chip hd'+(S.hideDone?' on':'')+'" onclick="S.hideDone=!S.hideDone;render()">'+(S.hideDone?'✓ ':'')+'Hide done</button>'+(nClosed()||S.showClosed?'<button class="chip" onclick="S.showClosed=!S.showClosed;render()">'+(S.showClosed?'← Back to list':'Closed ('+nClosed()+')')+'</button>':'')+'</div>';
  h+='<div class="list" id="list"></div><div class="empty" style="padding-bottom:6px"><button class="btn" onclick="exportData()">Export backup</button> <button class="btn" onclick="signOut()">Sign out</button></div><button class="fab" onclick="addSheet()" aria-label="Add place">+</button>';
  return h}
-function dist(p){if(!S.near||p.lat==null||p.lng==null)return null;var R=6371,r=Math.PI/180,dl=(p.lat-S.near.lat)*r,dn=(p.lng-S.near.lng)*r,a=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(S.near.lat*r)*Math.cos(p.lat*r)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(a))}
-function distTag(p){if(!S.near)return"";var d=dist(p);return d==null?'<span class="tag">no location</span>':'<span class="tag" style="background:var(--sun);color:#2a1a00">'+(d<10?d.toFixed(1):Math.round(d))+' km</span>'}
+function hav(la,ln){var R=6371,r=Math.PI/180,dl=(la-S.near.lat)*r,dn=(ln-S.near.lng)*r,a=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(S.near.lat*r)*Math.cos(la*r)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(a))}
+function nearest(p){if(!S.near)return null;var b=null;locsOf(p).forEach(function(l){if(l.lat==null||l.lng==null)return;var d=hav(l.lat,l.lng);if(!b||d<b.d)b={d:d,loc:l}});return b}
+function dist(p){var n=nearest(p);return n?n.d:null}
+function distTag(p){if(!S.near)return"";var n=nearest(p);return n==null?'<span class="tag">no location</span>':'<span class="tag" style="background:var(--sun);color:#2a1a00">'+(n.d<10?n.d.toFixed(1):Math.round(n.d))+' km'+(locsOf(p).length>1&&n.loc.area?' \u2022 '+esc(n.loc.area):'')+'</span>'}
 function nearMe(){
  if(S.near){S.near=null;S.nmsg="";render();return}
  if(!navigator.geolocation){S.nmsg="Location is not available on this device.";render();return}
@@ -179,7 +190,7 @@ function nearMe(){
 function coordsFromLink(u){if(!u)return null;var m=u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||u.match(/[?&](?:q|query|ll|destination)=(-?\d+\.\d+),(-?\d+\.\d+)/);return m?[+m[1],+m[2]]:null}
 function list(){
  var q=S.q.toLowerCase();
- var r=S.places.filter(function(p){return(S.showClosed?!!p.closed:live(p))&&(S.cat=="All"||p.cat==S.cat)&&(S.area=="All"||p.area==S.area)&&(S.type=="All"||p.type==S.type)&&(!S.hideDone||!p.done)&&(!q||(p.name+p.area+p.type+p.note).toLowerCase().indexOf(q)>-1)});
+ var r=S.places.filter(function(p){return(S.showClosed?!!p.closed:live(p))&&(S.cat=="All"||p.cat==S.cat)&&(S.area=="All"||areasOf(p).indexOf(S.area)>-1)&&(S.type=="All"||p.type==S.type)&&(!S.hideDone||!p.done)&&(!q||(p.name+areasOf(p).join(" ")+p.type+p.note).toLowerCase().indexOf(q)>-1)});
  if(S.near)r.sort(function(a,b){var x=dist(a),y=dist(b);return(x==null)-(y==null)||x-y});
  var msg=S.nmsg?'<div class="empty" style="padding:6px 0">'+esc(S.nmsg)+'</div>':S.near?'<div class="meta" style="padding:0 2px 4px">Sorted by straight-line distance from you.</div>':'';
  document.getElementById("list").innerHTML=msg+(r.length?r.map(card).join(""):'<div class="empty">Nothing here yet. Tap + to save a place.</div>')}
@@ -212,7 +223,7 @@ function viewCal(){
  h+='</div></div>';
  if(S.sel){var ev=S.events.filter(function(e){return e.date==S.sel});
   h+='<div class="sec"><h2>'+new Date(S.sel+"T12:00").toLocaleDateString("en",{weekday:"long",day:"numeric",month:"short"})+'</h2></div><div class="list">';
-  h+=ev.map(function(e){var p=e.pid?pl(e.pid):null;return'<div class="card"><div class="row"><div><h3>'+esc(p?p.name:e.title)+'</h3><div class="meta">'+esc(p?p.area:"Custom plan")+'</div></div><button class="btn" onclick="rmEv('+e.id+')">Remove</button></div></div>'}).join("");
+  h+=ev.map(function(e){var p=e.pid?pl(e.pid):null;return'<div class="card"><div class="row"><div><h3>'+esc(p?p.name:e.title)+'</h3><div class="meta">'+esc(p?areasOf(p).join(", "):"Custom plan")+'</div></div><button class="btn" onclick="rmEv('+e.id+')">Remove</button></div></div>'}).join("");
   h+='<button class="btn p" onclick="planSheet(null,S.sel)">+ Add plan</button></div>'}
  else h+='<div class="empty">Tap a day to see or add plans.</div>';
  return h}
@@ -222,7 +233,8 @@ function rmEv(id){S.events=S.events.filter(function(e){return e.id!=id});save();
 function sheet(inner){var b=document.createElement("div");b.className="sheet-bg";b.id="sh";b.onclick=function(e){if(e.target==b)closeSheet()};b.innerHTML='<div class="sheet">'+inner+'</div>';document.body.appendChild(b)}
 function closeSheet(){var b=document.getElementById("sh");if(b)b.remove()}
 function addSheet(id){
- sheet('<h2>'+(id?'Edit place':'Save a place')+'</h2><div><label>Name</label><input id="n"></div><div><label>Category</label><select id="c" onchange="typeHints()">'+CATS.map(function(c){return'<option>'+c+'</option>'}).join("")+'</select></div><div><label>Type (cheap, malls, cuisine, day trip…)</label><input id="t" placeholder="Tap a suggestion or type your own"><div class="tags" id="th"></div></div><div><label>Area</label><select id="a" onchange="areaSel(this)">'+areaOpts()+'<option value="__new">+ New area…</option></select><input id="an" class="hidden" placeholder="New area name" style="margin-top:8px"></div><div><label>Where did you find it?</label><select id="s">'+Object.keys(SRC).map(function(k){return'<option value="'+k+'">'+SRC[k]+'</option>'}).join("")+'</select></div><div><label>Google Maps link (optional, long links give distance)</label><input id="m" placeholder="Paste a share link"></div><div><label>Tip (why you saved it)</label><textarea id="tp" rows="2"></textarea></div><div><label>Link to the post (optional)</label><input id="lk"></div><div><label>Note</label><textarea id="o" rows="2"></textarea></div><button class="btn p" onclick="addPlace('+(id||0)+')">'+(id?'Save':'Add to list')+'</button>'+(id?'':'<button class="btn" onclick="addPlace(0,true)">Save as draft</button>')+(id?'<button class="btn d" onclick="setClosed('+id+','+(pl(id).closed?'false':'true')+')">'+(pl(id).closed?'Restore to list':'Mark as closed')+'</button>':'')+'<button class="btn" onclick="closeSheet()">Cancel</button>');
+ sheet('<h2>'+(id?'Edit place':'Save a place')+'</h2><div><label>Name</label><input id="n"></div><div><label>Category</label><select id="c" onchange="typeHints()">'+CATS.map(function(c){return'<option>'+c+'</option>'}).join("")+'</select></div><div><label>Type (cheap, malls, cuisine, day trip…)</label><input id="t" placeholder="Tap a suggestion or type your own"><div class="tags" id="th"></div></div><div><label>Locations (one per branch)</label><div id="locs" style="display:grid;gap:8px"></div><button type="button" class="btn" style="margin-top:8px" onclick="addLoc()">+ Add another location</button></div><div><label>Where did you find it?</label><select id="s">'+Object.keys(SRC).map(function(k){return'<option value="'+k+'">'+SRC[k]+'</option>'}).join("")+'</select></div><div><label>Tip (why you saved it)</label><textarea id="tp" rows="2"></textarea></div><div><label>Link to the post (optional)</label><input id="lk"></div><div><label>Note</label><textarea id="o" rows="2"></textarea></div><button class="btn p" onclick="addPlace('+(id||0)+')">'+(id?'Save':'Add to list')+'</button>'+(id?'':'<button class="btn" onclick="addPlace(0,true)">Save as draft</button>')+(id?'<button class="btn d" onclick="setClosed('+id+','+(pl(id).closed?'false':'true')+')">'+(pl(id).closed?'Restore to list':'Mark as closed')+'</button>':'')+'<button class="btn" onclick="closeSheet()">Cancel</button>');
+ FL=id?locsOf(pl(id)).map(function(l){return{area:l.area||"",maps:l.maps||"",m0:l.maps||"",lat:l.lat,lng:l.lng,note:l.note||"",avoid:!!l.avoid}}):[blankLoc()];drawLocs();
  typeHints();if(id){fillEdit(pl(id));typeHints()}}
 var AI=null,IMP=[],IMPL="";
 function importSheet(){sheet('<h2>Import from a reel</h2><div class="meta">Paste what the reel says: the caption, the on-screen text or a transcript. Claude finds the places and the creator tips.</div><div><label>Link to the reel (optional)</label><input id="il" placeholder="https://www.tiktok.com/..."></div><div><label>Caption or transcript</label><textarea id="it" rows="6"></textarea></div><div id="ir" class="meta"></div><button class="btn p" id="ib" onclick="runImport()">Find places</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
@@ -239,7 +251,7 @@ function importReview(){
  sheet('<h2>'+IMP.length+(IMP.length>1?' places':' place')+' found</h2><div class="meta">Untick any you do not want.</div>'+IMP.map(function(p,i){return'<label style="display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:15px"><input type="checkbox" id="ik'+i+'" checked style="width:auto;margin-top:4px"><span><b>'+esc(p.name)+'</b><br><span class="meta">'+esc([p.cat,p.type,p.area].filter(Boolean).join(" • "))+'</span>'+(p.tip?'<br><span style="font-size:13px">💡 '+esc(p.tip)+'</span>':'')+'</span></label>'}).join("")+'<button class="btn p" onclick="saveImport()">Save to my places</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
 function saveImport(){
  var l=IMPL,src=/tiktok\./i.test(l)?"tiktok":/instagram\./i.test(l)?"ig":"other";
- IMP.forEach(function(p,i){var cb=document.getElementById("ik"+i);if(cb&&!cb.checked)return;S.places.unshift({draft:true,id:S.nid--,name:String(p.name).slice(0,120),cat:CATS.indexOf(p.cat)>-1?p.cat:"Activities",type:String(p.type||""),area:String(p.area||""),price:"",note:"",tip:String(p.tip||""),link:l,maps:"",src:src,guest:false,done:false})});
+ IMP.forEach(function(p,i){var cb=document.getElementById("ik"+i);if(cb&&!cb.checked)return;S.places.unshift({draft:true,id:S.nid--,name:String(p.name).slice(0,120),cat:CATS.indexOf(p.cat)>-1?p.cat:"Activities",type:String(p.type||""),locs:p.area?[{area:String(p.area),maps:"",lat:null,lng:null,note:"",avoid:false}]:[],price:"",note:"",tip:String(p.tip||""),link:l,src:src,guest:false,done:false})});
  syncAreas();save();closeSheet();S.tab="drafts";render()}
 function typeRow(){
  if(S.cat=="All")return"";
@@ -248,23 +260,44 @@ function typeRow(){
  if(t.length<2)return"";t.sort();
  return'<div class="chips" style="padding-top:0">'+["All"].concat(t).map(function(x){return'<button class="chip'+(S.type==x?' on':'')+'" style="font-size:13px;padding:6px 12px" data-t="'+esc(x)+'" onclick="S.type=this.dataset.t;render()">'+(x=="All"?"All types":esc(x))+'</button>'}).join("")+'</div>'}
 function typeHints(){var c=document.getElementById("c").value,t=(TYPES[c]||[]).slice();S.places.forEach(function(p){if(p.cat==c&&p.type&&t.indexOf(p.type)<0)t.push(p.type)});document.getElementById("th").innerHTML=t.map(function(x){return'<button type="button" class="chip" style="font-size:13px;padding:6px 12px" data-t="'+esc(x)+'" onclick="document.getElementById(\'t\').value=this.dataset.t">'+esc(x)+'</button>'}).join("")}
-function fillEdit(p){document.getElementById("n").value=p.name||"";document.getElementById("c").value=p.cat||CATS[0];document.getElementById("t").value=p.type||"";document.getElementById("a").value=p.area||"";document.getElementById("s").value=p.src||"other";document.getElementById("m").value=p.maps||"";document.getElementById("o").value=p.note||"";document.getElementById("tp").value=p.tip||"";document.getElementById("lk").value=p.link||""}
-function syncAreas(){S.places.forEach(function(p){if(p.area&&S.areas.indexOf(p.area)<0)S.areas.push(p.area)})}
-function areaOpts(){syncAreas();return'<option value="">No area</option>'+S.areas.slice().sort().map(function(a){return'<option value="'+esc(a)+'"'+(a==S.area?' selected':'')+'>'+esc(a)+'</option>'}).join("")}
-function areaSel(s){document.getElementById("an").classList.toggle("hidden",s.value!=="__new")}
-function getArea(){var v=document.getElementById("a").value;if(v==="__new"){v=document.getElementById("an").value.trim();if(v&&S.areas.indexOf(v)<0)S.areas.push(v)}return v}
+function fillEdit(p){document.getElementById("n").value=p.name||"";document.getElementById("c").value=p.cat||CATS[0];document.getElementById("t").value=p.type||"";document.getElementById("s").value=p.src||"other";document.getElementById("o").value=p.note||"";document.getElementById("tp").value=p.tip||"";document.getElementById("lk").value=p.link||""}
+function syncAreas(){S.places.forEach(function(p){areasOf(p).forEach(function(a){if(S.areas.indexOf(a)<0)S.areas.push(a)})})}
+
+
+
 function areasSheet(msg){
  syncAreas();
- var rows=S.areas.map(function(a,i){var n=S.places.filter(function(p){return p.area==a}).length;return'<div class="row" style="align-items:center"><input id="ae'+i+'" value="'+esc(a)+'" style="min-width:0"><span class="meta" style="min-width:18px;text-align:center">'+n+'</span><button class="btn" onclick="renArea('+i+')">Save</button><button class="btn" onclick="delArea('+i+')">✕</button></div>'}).join("");
+ var rows=S.areas.map(function(a,i){var n=S.places.filter(function(p){return areasOf(p).indexOf(a)>-1}).length;return'<div class="row" style="align-items:center"><input id="ae'+i+'" value="'+esc(a)+'" style="min-width:0"><span class="meta" style="min-width:18px;text-align:center">'+n+'</span><button class="btn" onclick="renArea('+i+')">Save</button><button class="btn" onclick="delArea('+i+')">✕</button></div>'}).join("");
  closeSheet();
  sheet('<h2>Areas</h2><div class="meta">Edit a name and tap Save to rename. Renaming to an existing area merges them. The number is how many places use it.</div>'+rows+'<div class="row" style="align-items:center"><input id="aen" placeholder="New area, e.g. JBR" style="min-width:0"><button class="btn p" onclick="newArea()">Add</button></div><div class="meta">'+esc(msg||"")+'</div><button class="btn" onclick="closeSheet()">Done</button>')}
 function newArea(){var v=document.getElementById("aen").value.trim();if(!v)return;if(S.areas.indexOf(v)<0)S.areas.push(v);save();render();areasSheet("Added.")}
-function renArea(i){var v=document.getElementById("ae"+i).value.trim(),old=S.areas[i];if(!v||v==old)return;S.places.forEach(function(p){if(p.area==old)p.area=v});var j=S.areas.indexOf(v);if(j>-1&&j!=i){S.areas.splice(i,1)}else{S.areas[i]=v}if(S.area==old)S.area=v;save();render();areasSheet(j>-1?"Merged into "+v+".":"Renamed.")}
-function delArea(i){var a=S.areas[i];if(S.places.some(function(p){return p.area==a})){areasSheet("Rename it to another area first to move its places.");return}S.areas.splice(i,1);if(S.area==a)S.area="All";save();render();areasSheet("Deleted.")}
+function renArea(i){var v=document.getElementById("ae"+i).value.trim(),old=S.areas[i];if(!v||v==old)return;S.places.forEach(function(p){locsOf(p).forEach(function(l){if(l.area==old)l.area=v})});var j=S.areas.indexOf(v);if(j>-1&&j!=i){S.areas.splice(i,1)}else{S.areas[i]=v}if(S.area==old)S.area=v;save();render();areasSheet(j>-1?"Merged into "+v+".":"Renamed.")}
+function delArea(i){var a=S.areas[i];if(S.places.some(function(p){return areasOf(p).indexOf(a)>-1})){areasSheet("Rename it to another area first to move its places.");return}S.areas.splice(i,1);if(S.area==a)S.area="All";save();render();areasSheet("Deleted.")}
+var FL=[];
+function blankLoc(){return{area:"",maps:"",m0:"",lat:null,lng:null,note:"",avoid:false}}
+function locsHtml(){
+ syncAreas();var ar=S.areas.slice().sort();
+ return FL.map(function(l,i){
+  var nw=l.area==="__new";
+  var opts='<option value="">No area</option>'+ar.map(function(a){return'<option value="'+esc(a)+'"'+(a==l.area?' selected':'')+'>'+esc(a)+'</option>'}).join("")+'<option value="__new"'+(nw?' selected':'')+'>+ New area…</option>';
+  return'<div class="card" style="padding:10px;display:grid;gap:8px"><div class="row" style="align-items:center"><b style="font-size:14px">Location '+(i+1)+'</b>'+(FL.length>1?'<button type="button" class="btn d" onclick="rmLoc('+i+')">Remove</button>':'')+'</div><select onchange="locArea('+i+',this.value)">'+opts+'</select>'+(nw?'<input placeholder="New area name" value="'+esc(l.newArea||"")+'" oninput="FL['+i+'].newArea=this.value">':'')+'<input placeholder="Google Maps link (long links give distance)" value="'+esc(l.maps)+'" oninput="FL['+i+'].maps=this.value"><input placeholder="Note, e.g. best branch" value="'+esc(l.note)+'" oninput="FL['+i+'].note=this.value"><label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px"><input type="checkbox" style="width:auto"'+(l.avoid?' checked':'')+' onchange="FL['+i+'].avoid=this.checked"> Not recommended</label></div>'}).join("")}
+function drawLocs(){var e=document.getElementById("locs");if(e)e.innerHTML=locsHtml()}
+function addLoc(){FL.push(blankLoc());drawLocs()}
+function rmLoc(i){FL.splice(i,1);drawLocs()}
+function locArea(i,v){FL[i].area=v;drawLocs()}
+function collectLocs(){
+ var out=[];
+ FL.forEach(function(l){
+  var a=l.area==="__new"?(l.newArea||"").trim():l.area,m=(l.maps||"").trim(),n=(l.note||"").trim();
+  if(!a&&!m&&!n)return;
+  if(a&&S.areas.indexOf(a)<0)S.areas.push(a);
+  var lat=l.lat==null?null:l.lat,lng=l.lng==null?null:l.lng;
+  if(m!==(l.m0||"")){var c=coordsFromLink(m);lat=c?c[0]:null;lng=c?c[1]:null}
+  out.push({area:a,maps:m,lat:lat,lng:lng,note:n,avoid:!!l.avoid})});
+ return out}
 function addPlace(id,draft){
  var n=document.getElementById("n").value.trim();if(!n){document.getElementById("n").focus();return}
- var d={name:n,cat:document.getElementById("c").value,type:document.getElementById("t").value,area:getArea(),note:document.getElementById("o").value,maps:document.getElementById("m").value.trim(),src:document.getElementById("s").value,tip:document.getElementById("tp").value.trim(),link:document.getElementById("lk").value.trim()};
- var c=coordsFromLink(d.maps);if(c){d.lat=c[0];d.lng=c[1]}
+ var d={name:n,cat:document.getElementById("c").value,type:document.getElementById("t").value,locs:collectLocs(),note:document.getElementById("o").value,src:document.getElementById("s").value,tip:document.getElementById("tp").value.trim(),link:document.getElementById("lk").value.trim()};
  if(id){var p=pl(id);for(var k in d)p[k]=d[k]}else{S.places.unshift(Object.assign({id:S.nid--,price:"",guest:false,done:false,draft:!!draft},d));S.tab=draft?"drafts":"places"}
  save();closeSheet();render()}
 function planSheet(pid,date){
