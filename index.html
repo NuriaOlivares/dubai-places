@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dubai, saved</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Dubai"><meta name="theme-color" content="#0f8f8a"><link rel="apple-touch-icon" href="icon.png"><link rel="icon" href="icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f6f7;--card:#fff;--ink:#0e2a3b;--mut:#5d7482;--line:#d9e3e8;--acc:#0f8f8a;--acc-ink:#fff;--sun:#f2a33a;--chip:#e4eef0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1a24;--card:#12293a;--ink:#e8f1f4;--mut:#8fa8b5;--line:#22404f;--acc:#2cc4bd;--acc-ink:#06242a;--chip:#1a3546;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1a24;--card:#12293a;--ink:#e8f1f4;--mut:#8fa8b5;--line:#22404f;--acc:#2cc4bd;--acc-ink:#06242a;--chip:#1a3546;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,Segoe UI,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:560px;margin-inline:auto}
+header{padding:18px 18px 6px}h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--mut);font-size:14px;margin-top:2px}
+.stats{display:flex;gap:8px;margin:12px 18px 4px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{font-size:22px;display:block}.stat span{font-size:12px;color:var(--mut)}
+.bar{padding:10px 18px;display:flex;gap:8px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 18px 8px;scrollbar-width:none}
+.chip{flex:none;border:0;background:var(--chip);color:var(--ink);border-radius:20px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--acc);color:var(--acc-ink);font-weight:600}
+.chip.hd{background:none;border:1px solid var(--sun);color:var(--ink)}
+.chip.hd.on{background:var(--sun);border-color:var(--sun);color:#2a1a00;font-weight:600}
+.list{padding:4px 18px;display:grid;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.card.done{opacity:.55}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.card h3{margin:0;font-size:17px;font-weight:600}
+.meta{color:var(--mut);font-size:13px;margin-top:2px}
+.note{font-size:14px;margin:8px 0 0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:12px;background:var(--chip);border-radius:8px;padding:3px 8px}
+.tag.src{border:1px solid var(--line);background:none}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.btn{border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;cursor:pointer}
+.btn.on{background:var(--sun);border-color:var(--sun);color:#2a1a00}
+.btn.p{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:600}
+.btn.d{color:#d9534f;border-color:#d9534f66}
+.btn.e{background:var(--chip);border-color:var(--acc);color:var(--acc);font-weight:600}
+.btn.x{background:#d9534f;border-color:#d9534f;color:#fff;font-weight:600}
+.acts .end{margin-left:auto;display:flex;gap:6px}
+a.btn{text-decoration:none;display:inline-block}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));max-width:560px;margin:auto;z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-size:12px;padding:6px;cursor:pointer}
+nav button.on{color:var(--acc);font-weight:600}nav i{display:block;font-style:normal;font-size:20px}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:27px;border:0;background:var(--acc);color:var(--acc-ink);font-size:28px;z-index:6;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet{background:var(--bg);width:100%;max-width:480px;border-radius:20px;padding:18px;display:grid;gap:10px;max-height:100%;overflow:auto}
+.sheet h2{margin:0;font-size:20px}label{font-size:13px;color:var(--mut)}
+.sec{padding:14px 18px 0}.sec h2{font-size:18px;margin:0 0 8px}
+.hero{margin:12px 18px;padding:16px;border-radius:18px;background:var(--acc);color:var(--acc-ink)}
+.hero h2{margin:0;font-size:20px}.hero p{margin:4px 0 0;font-size:14px}
+.cal{padding:0 18px}.cal-h{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.cal-h b{font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.grid .dow{font-size:12px;color:var(--mut)}
+.day{aspect-ratio:1;border:0;border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;position:relative;cursor:pointer}
+.day.today{outline:2px solid var(--acc)}.day.sel{background:var(--acc);color:var(--acc-ink)}
+.day.e::after{content:"";position:absolute;bottom:5px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:3px;background:var(--sun)}
+.empty{text-align:center;color:var(--mut);padding:28px 18px;font-size:14px}
+.hidden{display:none}
+</style></head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script>
+var CATS=["Restaurants","Cafés","Activities","Getaways","Beaches","Shopping","Nightlife"];
+var TYPES={Restaurants:["Pakistani","Indian","Japanese","Seafood","Lebanese","Italian","Brunch"],"Cafés":["Specialty coffee","Brunch","Dessert"],Activities:["Outdoor","Culture","Family","Sport"],Getaways:["Day trip","Weekend"],Beaches:["Public beach","Beach club"],Shopping:["Cheap","Malls","Souks","Outlets","Markets","Luxury"],Nightlife:["Bars","Clubs","Rooftop","Live music"]};
+var SRC={maps:"Google Maps",tiktok:"TikTok",ig:"Instagram",other:"Other"};
+var SB_URL="https://gxbxqheodarzxbjcnvvi.supabase.co",SB_KEY="sb_publishable_75-gB_2Scsx7AL4lV1Q0GA__L3QhpCv";
+var SB=supabase.createClient(SB_URL,SB_KEY);
+var S={places:[],events:[],tab:"places",cat:"All",type:"All",q:"",area:"All",areas:[],near:null,nmsg:"",hideDone:false,showClosed:false,month:new Date(),sel:null,nid:-1,user:null,loading:false,err:"",em:"",snap:{places:{},events:{},areas:[]}};
+var PCOLS=["name","cat","type","area","price","note","src","maps","lat","lng","guest","done","tip","link","rating","draft","closed"];
+function rowOf(p){var r={};PCOLS.forEach(function(k){var v=p[k];if(k=="guest"||k=="done"||k=="draft"||k=="closed")v=!!v;else if(v===undefined||v==="")v=null;r[k]=v});return r}
+function eventRow(e){return{date:e.date,place_id:e.pid||null,title:e.title||null}}
+async function ok(q){var r=await q;if(r.error)throw r.error;return r}
+var Q=Promise.resolve();
+function save(){Q=Q.then(doSave).then(function(ch){if(ch)render()}).catch(function(e){S.err="Could not save: "+(e&&e.message?e.message:e);render()})}
+async function doSave(){
+ var changed=false,idMap={},k,i,r;
+ for(i=0;i<S.places.length;i++){var p=S.places[i],row=rowOf(p),j=JSON.stringify(row);
+  if(p.id<0){r=await ok(SB.from("places").insert(row).select("id").single());idMap[p.id]=r.data.id;p.id=r.data.id;S.snap.places[p.id]=j;changed=true}
+  else if(S.snap.places[p.id]!==j){await ok(SB.from("places").update(row).eq("id",p.id));S.snap.places[p.id]=j}}
+ var lp={};S.places.forEach(function(p){lp[p.id]=1});
+ for(k in S.snap.places){if(!lp[k]){await ok(SB.from("places").delete().eq("id",k));delete S.snap.places[k]}}
+ S.events.forEach(function(e){if(idMap[e.pid])e.pid=idMap[e.pid]});
+ for(i=0;i<S.events.length;i++){var e=S.events[i],er=eventRow(e),ej=JSON.stringify(er);
+  if(e.id<0){r=await ok(SB.from("events").insert(er).select("id").single());e.id=r.data.id;S.snap.events[e.id]=ej;changed=true}
+  else if(S.snap.events[e.id]!==ej){await ok(SB.from("events").update(er).eq("id",e.id));S.snap.events[e.id]=ej}}
+ var le={};S.events.forEach(function(e){le[e.id]=1});
+ for(k in S.snap.events){if(!le[k]){await ok(SB.from("events").delete().eq("id",k));delete S.snap.events[k]}}
+ var sa=S.snap.areas;
+ for(i=0;i<S.areas.length;i++){if(sa.indexOf(S.areas[i])<0){try{await ok(SB.from("areas").insert({name:S.areas[i]}))}catch(x){if(x.code!="23505")throw x}sa.push(S.areas[i])}}
+ for(i=sa.length-1;i>=0;i--){if(S.areas.indexOf(sa[i])<0){await ok(SB.from("areas").delete().eq("name",sa[i]));sa.splice(i,1)}}
+ if(S.err){S.err="";changed=true}
+ return changed}
+async function loadAll(){
+ S.loading=true;S.err="";render();
+ try{
+  var a=await ok(SB.from("places").select("*").order("created_at",{ascending:false}));
+  var b=await ok(SB.from("events").select("*"));
+  var c=await ok(SB.from("areas").select("name"));
+  S.places=a.data;
+  S.events=b.data.map(function(r){return{id:r.id,date:r.date,pid:r.place_id,title:r.title||""}});
+  S.areas=c.data.map(function(r){return r.name});
+  S.snap={places:{},events:{},areas:S.areas.slice()};
+  S.places.forEach(function(p){S.snap.places[p.id]=JSON.stringify(rowOf(p))});
+  S.events.forEach(function(e){S.snap.events[e.id]=JSON.stringify(eventRow(e))});
+ }catch(e){S.err="Could not load your data: "+(e&&e.message?e.message:e)}
+ S.loading=false;render()}
+async function boot(){
+ render();
+ try{var r=await SB.auth.getSession();if(r.data&&r.data.session){S.user=r.data.session.user;await loadAll();return}}catch(e){}
+ render()}
+async function signIn(){
+ var em=document.getElementById("em").value.trim(),pw=document.getElementById("pw").value;S.em=em;
+ if(!em||!pw){S.err="Enter your email and password.";render();return}
+ var r=await SB.auth.signInWithPassword({email:em,password:pw});
+ if(r.error){S.err=r.error.message;render();return}
+ S.user=r.data.user;S.err="";await loadAll()}
+async function signOut(){await SB.auth.signOut();S.user=null;S.places=[];S.events=[];S.areas=[];S.err="";render()}
+function viewLogin(){
+ var h='<header><h1>Dubai, saved</h1><div class="sub">'+(S.user?'Loading your places\u2026':'Sign in to see your places.')+'</div></header>';
+ if(!S.user)h+='<div class="sec"><div style="display:grid;gap:10px"><input id="em" type="email" placeholder="Email" autocomplete="username" value="'+esc(S.em)+'"><input id="pw" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key===\'Enter\')signIn()"><button class="btn p" style="padding:12px" onclick="signIn()">Sign in</button></div></div>';
+ if(S.err)h+='<div class="empty" style="color:#d9534f">'+esc(S.err)+'</div>';
+ return h}
+function exportData(){
+ var t=JSON.stringify({exported:new Date().toISOString(),places:S.places,events:S.events,areas:S.areas},null,1);
+ sheet('<h2>Backup</h2><div class="meta">Copy this and save it somewhere safe (Notes, email to yourself).</div><textarea id="ex" rows="8" readonly></textarea><button class="btn p" onclick="var x=document.getElementById(\'ex\');x.select();try{navigator.clipboard.writeText(x.value)}catch(e){document.execCommand(\'copy\')}this.textContent=\'Copied\'">Copy</button><button class="btn" onclick="closeSheet()">Close</button>');
+ document.getElementById("ex").value=t}
+function live(p){return!p.draft&&!p.closed}
+function nClosed(){return S.places.filter(function(p){return p.closed}).length}
+function setClosed(id,v){var p=pl(id);if(!p)return;p.closed=!!v;save();closeSheet();render()}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pl(id){return S.places.filter(function(p){return p.id==id})[0]}
+
+function card(p){
+ var h='<div class="card'+(p.done?' done':'')+'"><div class="row"><div><h3>'+esc(p.name)+'</h3><div class="meta">'+esc(p.area)+(p.type?' • '+esc(p.type):'')+'</div></div><div class="tag">'+esc(p.price||"")+'</div></div>';
+ if(p.note)h+='<p class="note">'+esc(p.note)+'</p>';
+ if(p.tip)h+='<p class="note" style="border-left:3px solid var(--sun);padding-left:10px">💡 '+esc(p.tip)+'</p>';
+ if(p.link&&/^https?:/.test(p.link))h+='<div class="meta" style="margin-top:6px"><a href="'+esc(p.link)+'" target="_blank" rel="noopener" style="color:var(--acc)">Open original post</a></div>';
+ h+='<div class="tags"><span class="tag">'+esc(p.cat)+'</span><span class="tag src">'+esc(SRC[p.src]||"Other")+'</span>'+distTag(p)+'</div>';
+ if(p.closed){h+='<div class="acts"><button class="btn p" onclick="setClosed('+p.id+',false)">Restore</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><span class="end"><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';return h}
+ if(p.draft){h+='<div class="acts"><button class="btn p" onclick="approve('+p.id+')">Add to list</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Discard</button></span></div></div>';return h}
+ h+='<div class="acts"><button class="btn'+(p.guest?' on':'')+'" onclick="tg('+p.id+',\'guest\')">'+(p.guest?'★ For guests':'☆ Guests')+'</button><button class="btn'+(p.done?' on':'')+'" onclick="beenSheet('+p.id+')">'+(p.done?'Been '+(RATE[p.rating]?RATE[p.rating].e:'✓'):'Mark been')+'</button><a class="btn" href="'+esc(mapsUrl(p))+'" target="_blank" rel="noopener">Maps</a><button class="btn p" onclick="planSheet('+p.id+')">Plan</button><span class="end"><button class="btn e" onclick="addSheet('+p.id+')">Edit</button><button class="btn d" onclick="del('+p.id+')">Delete</button></span></div></div>';
+ return h}
+function mapsUrl(p){return p.maps||("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" UAE"))}
+var RATE={up:{e:"👍",t:"Loved it"},mid:{e:"😐",t:"It was ok"},down:{e:"👎",t:"Not for me"}};
+function beenSheet(id){var p=pl(id);if(!p)return;sheet('<h2>How was it?</h2><div class="meta">'+esc(p.name)+'</div>'+['up','mid','down'].map(function(k){return'<button class="btn'+(p.rating==k?' on':'')+'" style="padding:12px;font-size:15px" onclick="rate('+id+',\''+k+'\')">'+RATE[k].e+' '+RATE[k].t+'</button>'}).join('')+(p.done?'<button class="btn d" onclick="unbeen('+id+')">Not been after all</button>':'')+'<button class="btn" onclick="closeSheet()">Cancel</button>')}
+function rate(id,k){var p=pl(id);p.done=true;p.rating=k;save();closeSheet();render()}
+function unbeen(id){var p=pl(id);p.done=false;delete p.rating;save();closeSheet();render()}
+function tg(id,k){var p=pl(id);p[k]=!p[k];save();render()}
+function del(id){var p=pl(id);if(!p)return;sheet('<h2>Delete this place?</h2><div class="meta">'+esc(p.name)+' and its planned dates will be removed. This cannot be undone.</div><button class="btn x" onclick="delOk('+id+')">Delete</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
+function delOk(id){S.places=S.places.filter(function(p){return p.id!=id});S.events=S.events.filter(function(e){return e.pid!=id});save();closeSheet();render()}
+
+function viewPlaces(){
+ var all=S.places,todo=all.filter(function(p){return!p.done}).length;
+ syncAreas();var ar=S.areas.slice().sort();if(S.area!="All"&&ar.indexOf(S.area)<0)S.area="All";
+ var aopts=["All"].concat(ar).map(function(a){return'<option value="'+esc(a)+'"'+(a==S.area?' selected':'')+'>'+(a=="All"?"All areas":esc(a))+'</option>'}).join("");
+ var h='<header><h1>Dubai, saved</h1><div class="sub">Everything you want to see, in one place.</div></header>';
+ if(AI)h+='<div class="bar" style="padding-bottom:0"><button class="btn p" style="width:100%;padding:12px" onclick="importSheet()">✨ Import places from a reel</button></div>';
+ h+='<div class="bar"><input id="q" placeholder="Search places, cuisines" value="'+esc(S.q)+'" oninput="S.q=this.value;list()"><select id="ar" style="width:44%" onchange="S.area=this.value;list()">'+aopts+'</select><button class="btn" style="flex:none" onclick="areasSheet()" aria-label="Manage areas">⚙</button></div>';
+ h+='<div class="chips"><button class="chip'+(S.near?' on':'')+'" onclick="nearMe()">📍 Near me</button>'+["All"].concat(CATS).map(function(c){return'<button class="chip'+(S.cat==c?' on':'')+'" onclick="S.cat=\''+c+'\';S.type=\'All\';render()">'+c+'</button>'}).join("")+'</div>';
+ h+=typeRow();
+ h+='<div class="bar" style="padding-top:0"><button class="chip hd'+(S.hideDone?' on':'')+'" onclick="S.hideDone=!S.hideDone;render()">'+(S.hideDone?'✓ ':'')+'Hide done</button>'+(nClosed()||S.showClosed?'<button class="chip" onclick="S.showClosed=!S.showClosed;render()">'+(S.showClosed?'← Back to list':'Closed ('+nClosed()+')')+'</button>':'')+'</div>';
+ h+='<div class="list" id="list"></div><div class="empty" style="padding-bottom:6px"><button class="btn" onclick="exportData()">Export backup</button> <button class="btn" onclick="signOut()">Sign out</button></div><button class="fab" onclick="addSheet()" aria-label="Add place">+</button>';
+ return h}
+function dist(p){if(!S.near||p.lat==null||p.lng==null)return null;var R=6371,r=Math.PI/180,dl=(p.lat-S.near.lat)*r,dn=(p.lng-S.near.lng)*r,a=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(S.near.lat*r)*Math.cos(p.lat*r)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(a))}
+function distTag(p){if(!S.near)return"";var d=dist(p);return d==null?'<span class="tag">no location</span>':'<span class="tag" style="background:var(--sun);color:#2a1a00">'+(d<10?d.toFixed(1):Math.round(d))+' km</span>'}
+function nearMe(){
+ if(S.near){S.near=null;S.nmsg="";render();return}
+ if(!navigator.geolocation){S.nmsg="Location is not available on this device.";render();return}
+ S.nmsg="Finding you…";render();
+ navigator.geolocation.getCurrentPosition(function(pos){S.near={lat:pos.coords.latitude,lng:pos.coords.longitude};S.nmsg="";render()},function(){S.nmsg="Could not get your location. Allow location access for this page and try again.";render()},{enableHighAccuracy:false,timeout:10000,maximumAge:60000})}
+function coordsFromLink(u){if(!u)return null;var m=u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||u.match(/[?&](?:q|query|ll|destination)=(-?\d+\.\d+),(-?\d+\.\d+)/);return m?[+m[1],+m[2]]:null}
+function list(){
+ var q=S.q.toLowerCase();
+ var r=S.places.filter(function(p){return(S.showClosed?!!p.closed:live(p))&&(S.cat=="All"||p.cat==S.cat)&&(S.area=="All"||p.area==S.area)&&(S.type=="All"||p.type==S.type)&&(!S.hideDone||!p.done)&&(!q||(p.name+p.area+p.type+p.note).toLowerCase().indexOf(q)>-1)});
+ if(S.near)r.sort(function(a,b){var x=dist(a),y=dist(b);return(x==null)-(y==null)||x-y});
+ var msg=S.nmsg?'<div class="empty" style="padding:6px 0">'+esc(S.nmsg)+'</div>':S.near?'<div class="meta" style="padding:0 2px 4px">Sorted by straight-line distance from you.</div>':'';
+ document.getElementById("list").innerHTML=msg+(r.length?r.map(card).join(""):'<div class="empty">Nothing here yet. Tap + to save a place.</div>')}
+
+function nDrafts(){return S.places.filter(function(p){return p.draft&&!p.closed}).length}
+function approve(id){var p=pl(id);if(p){delete p.draft;save();render()}}
+function approveAll(){S.places.forEach(function(p){if(p.draft&&!p.closed)delete p.draft});save();render()}
+function viewDrafts(){
+ var d=S.places.filter(function(p){return p.draft&&!p.closed});
+ var h='<header><h1>Drafts</h1><div class="sub">Review new places before they join your list.</div></header>';
+ h+='<div class="bar" style="padding-bottom:0">'+(AI?'<button class="btn p" style="flex:1;padding:12px" onclick="importSheet()">✨ Import from a reel</button>':'')+'<button class="btn" style="flex:1;padding:12px" onclick="addSheet()">+ Add manually</button></div>';
+ if(!d.length)return h+'<div class="empty">No drafts. Places you import or save as a draft wait here until you add them to your list.</div>';
+ if(d.length>1)h+='<div class="bar" style="padding-bottom:0"><button class="btn" onclick="approveAll()">Add all '+d.length+' to my list</button></div>';
+ return h+'<div class="list" style="padding-top:10px">'+d.map(card).join("")+'</div>'}
+function viewGuests(){
+ var g=S.places.filter(function(p){return p.guest&&live(p)});
+ var h='<header><h1>When guests visit</h1><div class="sub">Your shortlist for family and friends.</div></header>';
+ h+='<div class="hero"><h2>'+g.length+' places picked</h2><p>Star any place with ☆ Guests and it shows up here, grouped by type.</p></div>';
+ if(!g.length)return h+'<div class="empty">No guest picks yet. Star places in the Places tab.</div>';
+ CATS.forEach(function(c){var x=g.filter(function(p){return p.cat==c});if(x.length)h+='<div class="sec"><h2>'+c+'</h2></div><div class="list">'+x.map(card).join("")+'</div>'});
+ return h}
+
+function viewCal(){
+ var m=S.month,y=m.getFullYear(),mo=m.getMonth(),first=new Date(y,mo,1),off=(first.getDay()+6)%7,days=new Date(y,mo+1,0).getDate(),t=iso(new Date());
+ var h='<header><h1>Plans</h1><div class="sub">Put saved places on a date.</div></header><div class="cal"><div class="cal-h"><button class="btn" onclick="mv(-1)">‹</button><b>'+m.toLocaleString("en",{month:"long",year:"numeric"})+'</b><button class="btn" onclick="mv(1)">›</button></div><div class="grid">';
+ ["M","T","W","T","F","S","S"].forEach(function(d){h+='<div class="dow">'+d+'</div>'});
+ for(var i=0;i<off;i++)h+='<div></div>';
+ for(var d=1;d<=days;d++){var k=y+"-"+String(mo+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");var has=S.events.some(function(e){return e.date==k});
+  h+='<button class="day'+(k==t?' today':'')+(k==S.sel?' sel':'')+(has?' e':'')+'" onclick="S.sel=\''+k+'\';render()">'+d+'</button>'}
+ h+='</div></div>';
+ if(S.sel){var ev=S.events.filter(function(e){return e.date==S.sel});
+  h+='<div class="sec"><h2>'+new Date(S.sel+"T12:00").toLocaleDateString("en",{weekday:"long",day:"numeric",month:"short"})+'</h2></div><div class="list">';
+  h+=ev.map(function(e){var p=e.pid?pl(e.pid):null;return'<div class="card"><div class="row"><div><h3>'+esc(p?p.name:e.title)+'</h3><div class="meta">'+esc(p?p.area:"Custom plan")+'</div></div><button class="btn" onclick="rmEv('+e.id+')">Remove</button></div></div>'}).join("");
+  h+='<button class="btn p" onclick="planSheet(null,S.sel)">+ Add plan</button></div>'}
+ else h+='<div class="empty">Tap a day to see or add plans.</div>';
+ return h}
+function mv(n){S.month=new Date(S.month.getFullYear(),S.month.getMonth()+n,1);render()}
+function rmEv(id){S.events=S.events.filter(function(e){return e.id!=id});save();render()}
+
+function sheet(inner){var b=document.createElement("div");b.className="sheet-bg";b.id="sh";b.onclick=function(e){if(e.target==b)closeSheet()};b.innerHTML='<div class="sheet">'+inner+'</div>';document.body.appendChild(b)}
+function closeSheet(){var b=document.getElementById("sh");if(b)b.remove()}
+function addSheet(id){
+ sheet('<h2>'+(id?'Edit place':'Save a place')+'</h2><div><label>Name</label><input id="n"></div><div><label>Category</label><select id="c" onchange="typeHints()">'+CATS.map(function(c){return'<option>'+c+'</option>'}).join("")+'</select></div><div><label>Type (cheap, malls, cuisine, day trip…)</label><input id="t" placeholder="Tap a suggestion or type your own"><div class="tags" id="th"></div></div><div><label>Area</label><select id="a" onchange="areaSel(this)">'+areaOpts()+'<option value="__new">+ New area…</option></select><input id="an" class="hidden" placeholder="New area name" style="margin-top:8px"></div><div><label>Where did you find it?</label><select id="s">'+Object.keys(SRC).map(function(k){return'<option value="'+k+'">'+SRC[k]+'</option>'}).join("")+'</select></div><div><label>Google Maps link (optional, long links give distance)</label><input id="m" placeholder="Paste a share link"></div><div><label>Tip (why you saved it)</label><textarea id="tp" rows="2"></textarea></div><div><label>Link to the post (optional)</label><input id="lk"></div><div><label>Note</label><textarea id="o" rows="2"></textarea></div><button class="btn p" onclick="addPlace('+(id||0)+')">'+(id?'Save':'Add to list')+'</button>'+(id?'':'<button class="btn" onclick="addPlace(0,true)">Save as draft</button>')+(id?'<button class="btn d" onclick="setClosed('+id+','+(pl(id).closed?'false':'true')+')">'+(pl(id).closed?'Restore to list':'Mark as closed')+'</button>':'')+'<button class="btn" onclick="closeSheet()">Cancel</button>');
+ typeHints();if(id){fillEdit(pl(id));typeHints()}}
+var AI=null,IMP=[],IMPL="";
+function importSheet(){sheet('<h2>Import from a reel</h2><div class="meta">Paste what the reel says: the caption, the on-screen text or a transcript. Claude finds the places and the creator tips.</div><div><label>Link to the reel (optional)</label><input id="il" placeholder="https://www.tiktok.com/..."></div><div><label>Caption or transcript</label><textarea id="it" rows="6"></textarea></div><div id="ir" class="meta"></div><button class="btn p" id="ib" onclick="runImport()">Find places</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
+function runImport(){
+ var t=document.getElementById("it").value.trim(),l=document.getElementById("il").value.trim(),r=document.getElementById("ir");
+ if(!t){r.textContent="Paste the caption or transcript first.";return}
+ if(!AI){r.textContent="This needs Claude, which is not available here.";return}
+ r.textContent="Reading the reel…";document.getElementById("ib").disabled=true;
+ var q='You extract places from the text of a TikTok or Instagram reel about Dubai and the UAE. List every specific place, restaurant, cafe, activity, beach, shop or day trip that is explicitly mentioned. Do not invent places. For each give: name (as written), cat (one of: '+CATS.join(", ")+'), type (short, for example a cuisine, Cheap, Malls or Day trip), area (neighbourhood or city if stated or obvious, else an empty string), tip (the advice from the creator or the reason to go, in one short sentence in English). Return only a JSON array of objects with the keys name, cat, type, area, tip. Return [] if there are none. Reel text: '+t;
+ AI.json(q,{cache:false}).then(function(x){IMP=(Array.isArray(x)?x:[]).filter(function(p){return p&&p.name});IMPL=l;if(IMP.length){saveImport()}else{importReview()}}).catch(function(e){var b=document.getElementById("ib");if(b)b.disabled=false;if(r)r.textContent=(e&&e.code=="not_granted")?"Permission was declined, so I cannot read the reel.":"Could not read that. Try again, or paste a bit more text."})}
+function importReview(){
+ closeSheet();
+ if(!IMP.length){sheet('<h2>No places found</h2><div class="meta">I did not find a named place in that text. Try pasting the full caption or the spoken text.</div><button class="btn" onclick="importSheet()">Back</button>');return}
+ sheet('<h2>'+IMP.length+(IMP.length>1?' places':' place')+' found</h2><div class="meta">Untick any you do not want.</div>'+IMP.map(function(p,i){return'<label style="display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:15px"><input type="checkbox" id="ik'+i+'" checked style="width:auto;margin-top:4px"><span><b>'+esc(p.name)+'</b><br><span class="meta">'+esc([p.cat,p.type,p.area].filter(Boolean).join(" • "))+'</span>'+(p.tip?'<br><span style="font-size:13px">💡 '+esc(p.tip)+'</span>':'')+'</span></label>'}).join("")+'<button class="btn p" onclick="saveImport()">Save to my places</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
+function saveImport(){
+ var l=IMPL,src=/tiktok\./i.test(l)?"tiktok":/instagram\./i.test(l)?"ig":"other";
+ IMP.forEach(function(p,i){var cb=document.getElementById("ik"+i);if(cb&&!cb.checked)return;S.places.unshift({draft:true,id:S.nid--,name:String(p.name).slice(0,120),cat:CATS.indexOf(p.cat)>-1?p.cat:"Activities",type:String(p.type||""),area:String(p.area||""),price:"",note:"",tip:String(p.tip||""),link:l,maps:"",src:src,guest:false,done:false})});
+ syncAreas();save();closeSheet();S.tab="drafts";render()}
+function typeRow(){
+ if(S.cat=="All")return"";
+ var t=[];S.places.forEach(function(p){if(live(p)&&p.cat==S.cat&&p.type&&t.indexOf(p.type)<0)t.push(p.type)});
+ if(S.type!="All"&&t.indexOf(S.type)<0)S.type="All";
+ if(t.length<2)return"";t.sort();
+ return'<div class="chips" style="padding-top:0">'+["All"].concat(t).map(function(x){return'<button class="chip'+(S.type==x?' on':'')+'" style="font-size:13px;padding:6px 12px" data-t="'+esc(x)+'" onclick="S.type=this.dataset.t;render()">'+(x=="All"?"All types":esc(x))+'</button>'}).join("")+'</div>'}
+function typeHints(){var c=document.getElementById("c").value,t=(TYPES[c]||[]).slice();S.places.forEach(function(p){if(p.cat==c&&p.type&&t.indexOf(p.type)<0)t.push(p.type)});document.getElementById("th").innerHTML=t.map(function(x){return'<button type="button" class="chip" style="font-size:13px;padding:6px 12px" data-t="'+esc(x)+'" onclick="document.getElementById(\'t\').value=this.dataset.t">'+esc(x)+'</button>'}).join("")}
+function fillEdit(p){document.getElementById("n").value=p.name||"";document.getElementById("c").value=p.cat||CATS[0];document.getElementById("t").value=p.type||"";document.getElementById("a").value=p.area||"";document.getElementById("s").value=p.src||"other";document.getElementById("m").value=p.maps||"";document.getElementById("o").value=p.note||"";document.getElementById("tp").value=p.tip||"";document.getElementById("lk").value=p.link||""}
+function syncAreas(){S.places.forEach(function(p){if(p.area&&S.areas.indexOf(p.area)<0)S.areas.push(p.area)})}
+function areaOpts(){syncAreas();return'<option value="">No area</option>'+S.areas.slice().sort().map(function(a){return'<option value="'+esc(a)+'"'+(a==S.area?' selected':'')+'>'+esc(a)+'</option>'}).join("")}
+function areaSel(s){document.getElementById("an").classList.toggle("hidden",s.value!=="__new")}
+function getArea(){var v=document.getElementById("a").value;if(v==="__new"){v=document.getElementById("an").value.trim();if(v&&S.areas.indexOf(v)<0)S.areas.push(v)}return v}
+function areasSheet(msg){
+ syncAreas();
+ var rows=S.areas.map(function(a,i){var n=S.places.filter(function(p){return p.area==a}).length;return'<div class="row" style="align-items:center"><input id="ae'+i+'" value="'+esc(a)+'" style="min-width:0"><span class="meta" style="min-width:18px;text-align:center">'+n+'</span><button class="btn" onclick="renArea('+i+')">Save</button><button class="btn" onclick="delArea('+i+')">✕</button></div>'}).join("");
+ closeSheet();
+ sheet('<h2>Areas</h2><div class="meta">Edit a name and tap Save to rename. Renaming to an existing area merges them. The number is how many places use it.</div>'+rows+'<div class="row" style="align-items:center"><input id="aen" placeholder="New area, e.g. JBR" style="min-width:0"><button class="btn p" onclick="newArea()">Add</button></div><div class="meta">'+esc(msg||"")+'</div><button class="btn" onclick="closeSheet()">Done</button>')}
+function newArea(){var v=document.getElementById("aen").value.trim();if(!v)return;if(S.areas.indexOf(v)<0)S.areas.push(v);save();render();areasSheet("Added.")}
+function renArea(i){var v=document.getElementById("ae"+i).value.trim(),old=S.areas[i];if(!v||v==old)return;S.places.forEach(function(p){if(p.area==old)p.area=v});var j=S.areas.indexOf(v);if(j>-1&&j!=i){S.areas.splice(i,1)}else{S.areas[i]=v}if(S.area==old)S.area=v;save();render();areasSheet(j>-1?"Merged into "+v+".":"Renamed.")}
+function delArea(i){var a=S.areas[i];if(S.places.some(function(p){return p.area==a})){areasSheet("Rename it to another area first to move its places.");return}S.areas.splice(i,1);if(S.area==a)S.area="All";save();render();areasSheet("Deleted.")}
+function addPlace(id,draft){
+ var n=document.getElementById("n").value.trim();if(!n){document.getElementById("n").focus();return}
+ var d={name:n,cat:document.getElementById("c").value,type:document.getElementById("t").value,area:getArea(),note:document.getElementById("o").value,maps:document.getElementById("m").value.trim(),src:document.getElementById("s").value,tip:document.getElementById("tp").value.trim(),link:document.getElementById("lk").value.trim()};
+ var c=coordsFromLink(d.maps);if(c){d.lat=c[0];d.lng=c[1]}
+ if(id){var p=pl(id);for(var k in d)p[k]=d[k]}else{S.places.unshift(Object.assign({id:S.nid--,price:"",guest:false,done:false,draft:!!draft},d));S.tab=draft?"drafts":"places"}
+ save();closeSheet();render()}
+function planSheet(pid,date){
+ var opts=S.places.filter(live).map(function(p){return'<option value="'+p.id+'"'+(p.id==pid?' selected':'')+'>'+esc(p.name)+'</option>'}).join("");
+ sheet('<h2>Plan it</h2><div><label>Place</label><select id="pp">'+opts+'<option value="">Custom plan...</option></select></div><div><label>Custom title (optional)</label><input id="pt"></div><div><label>Date</label><input type="date" id="pd" value="'+(date||iso(new Date()))+'"></div><button class="btn p" onclick="addEv()">Add to calendar</button><button class="btn" onclick="closeSheet()">Cancel</button>')}
+function addEv(){
+ var pid=document.getElementById("pp").value,t=document.getElementById("pt").value.trim(),d=document.getElementById("pd").value;
+ if(!d||(!pid&&!t))return;
+ S.events.push({id:S.nid--,date:d,pid:pid?+pid:null,title:t});save();closeSheet();
+ S.sel=d;S.month=new Date(d+"T12:00");S.tab="cal";render()}
+
+function render(){
+ if(!S.user||S.loading){document.getElementById("app").innerHTML=viewLogin();return}
+ var h=S.tab=="places"?viewPlaces():S.tab=="guests"?viewGuests():S.tab=="drafts"?viewDrafts():viewCal();
+ h+='<nav>'+[["places","📍","Places"],["guests","👨‍👩‍👧","Guests"],["drafts","📥","Drafts"],["cal","🗓️","Calendar"]].map(function(t){return'<button class="'+(S.tab==t[0]?'on':'')+'" onclick="S.tab=\''+t[0]+'\';render();window.scrollTo(0,0)"><i>'+t[1]+'</i>'+t[2]+(t[0]=="drafts"&&nDrafts()?' ('+nDrafts()+')':'')+'</button>'}).join("")+'</nav>';
+ if(S.err)h='<div class="empty" style="color:#d9534f;padding:8px 18px">'+esc(S.err)+'</div>'+h;
+ document.getElementById("app").innerHTML=h;
+ if(S.tab=="places")list()}
+boot();
+</script></body></html>
